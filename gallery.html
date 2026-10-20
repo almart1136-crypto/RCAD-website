@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gallery | River City Auto Detail</title>
+<meta name="description" content="Browse photos of recent auto detailing work by River City Auto Detail in Grand Rapids, MI.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+
+<!-- ===== LIGHTBOX STYLES ===== -->
+<style>
+  .lb-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(6, 6, 7, 0.94);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    padding: 4rem 5rem;
+  }
+  .lb-overlay.open { display: flex; }
+
+  .lb-stage {
+    position: relative;
+    max-width: 1100px;
+    width: 100%;
+    max-height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .lb-image {
+    max-width: 100%;
+    max-height: calc(100vh - 8rem);
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--line-strong);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+    background: #000;
+    opacity: 0;
+    transform: scale(0.96);
+    transition: opacity .25s ease, transform .25s ease;
+  }
+  .lb-image.loaded { opacity: 1; transform: scale(1); }
+
+  .lb-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid var(--line-strong);
+    background: rgba(26, 26, 29, 0.85);
+    color: var(--text);
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background .2s, border-color .2s, color .2s, transform .15s;
+    user-select: none;
+  }
+  .lb-btn:hover {
+    background: var(--red);
+    border-color: var(--red);
+    color: #fff;
+  }
+  .lb-btn:active { transform: translateY(-50%) scale(0.94); }
+  .lb-prev { left: 1.25rem; }
+  .lb-next { right: 1.25rem; }
+
+  .lb-close {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid var(--line-strong);
+    background: rgba(26, 26, 29, 0.85);
+    color: var(--text);
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: background .2s, border-color .2s;
+  }
+  .lb-close:hover { background: var(--red); border-color: var(--red); color: #fff; }
+
+  .lb-counter {
+    position: absolute;
+    bottom: 1.25rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--text-muted);
+    font-size: .85rem;
+    letter-spacing: .08em;
+    background: rgba(18, 18, 20, 0.85);
+    padding: .35em 1em;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+  }
+
+  /* Arrow buttons hide on touch devices — swipe is enabled instead */
+  @media (max-width: 760px) {
+    .lb-overlay { padding: 3.5rem 1rem 4rem; }
+    .lb-btn { width: 44px; height: 44px; font-size: 1.2rem; }
+    .lb-prev { left: .5rem; }
+    .lb-next { right: .5rem; }
+    .lb-image { max-height: calc(100vh - 9rem); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER (unchanged) ===== -->
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="/" class="logo-link" aria-label="River City Auto Detail home">
+      <img src="https://cdn.prod.website-files.com/685dc4286c070b0adb7786d8/6925f3d632eac3bb20110d4e_River%20City%20Detail.png" alt="River City Auto Detail logo" width="60" height="60">
+      <span class="logo-text">River City Auto Detail</span>
+    </a>
+    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="site-nav" aria-label="Main navigation">
+      <ul class="nav-list">
+        <li><a href="/">Home</a></li>
+        <li class="has-dropdown">
+          <button class="dropdown-btn" aria-expanded="false">Services ▾</button>
+          <ul class="dropdown">
+            <li><a href="/services">Packages &amp; Pricing</a></li>
+            <li><a href="/grand-rapids-exterior-detailing">Exterior Detailing</a></li>
+            <li><a href="/3-step-paint-correction-river-city-auto-detail">Paint Restoration</a></li>
+            <li><a href="/fleet-vehicles">Fleet Vehicles</a></li>
+          </ul>
+        </li>
+        <li><a href="/gallery">Gallery</a></li>
+        <li><a href="/reviews">Reviews</a></li>
+        <li class="has-dropdown">
+          <button class="dropdown-btn" aria-expanded="false">Service Areas ▾</button>
+          <ul class="dropdown">
+            <li><a href="/car-detailing-in-burton-heights">Burton Heights</a></li>
+            <li><a href="/car-detailing-in-the-black-hills">Black Hills</a></li>
+            <li><a href="/car-detailing-in-godwin-heights">Godwin Heights</a></li>
+            <li><a href="/car-detailing-in-madison-area">South East End</a></li>
+          </ul>
+        </li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/blog">Blog</a></li>
+        <li><a href="/contact">Contact</a></li>
+        <li><a href="/book-appointment" class="btn btn-primary nav-cta">Book Appointment</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- ===== GALLERY ===== -->
+<section class="section">
+  <div class="container">
+    <p class="eyebrow">Our Work</p>
+    <h2 class="section-title">Recent Details</h2>
+    <p class="section-lead">A selection of vehicles we've restored to showroom condition.</p>
+
+    <div id="gallery-status" style="text-align:center; padding:2rem 0; color:var(--text-dim);">
+      Loading gallery…
+    </div>
+
+    <div id="gallery-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1.25rem; margin-top:2.5rem;"></div>
+  </div>
+</section>
+
+<!-- ===== LIGHTBOX MARKUP ===== -->
+<div class="lb-overlay" id="lightbox" role="dialog" aria-modal="true" aria-label="Image viewer">
+  <button class="lb-close" id="lb-close" aria-label="Close viewer">✕</button>
+  <button class="lb-btn lb-prev" id="lb-prev" aria-label="Previous image">‹</button>
+  <div class="lb-stage">
+    <img class="lb-image" id="lb-image" alt="">
+  </div>
+  <button class="lb-btn lb-next" id="lb-next" aria-label="Next image">›</button>
+  <div class="lb-counter" id="lb-counter"></div>
+</div>
+
+<!-- ===== FOOTER (unchanged) ===== -->
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <img src="https://cdn.prod.website-files.com/685dc4286c070b0adb7786d8/6925f3d632eac3bb20110d4e_River%20City%20Detail.png" alt="River City Auto Detail logo" width="70" height="70">
+      <p class="footer-addr">
+        <strong>River City Auto Detail</strong><br>
+        705 Baylis St SW<br>
+        Grand Rapids, MI 49503<br>
+        <a href="tel:+16164854306">616-485-4306</a>
+      </p>
+      <p class="footer-hours">
+        <strong>Hours</strong><br>
+        Mon–Fri: 8am–6pm<br>
+        Sat: 9am–3pm<br>
+        Sun: Closed
+      </p>
+    </div>
+    <div>
+      <h4>Explore</h4>
+      <ul class="footer-links">
+        <li><a href="/services">Packages</a></li>
+        <li><a href="/gallery">Gallery</a></li>
+        <li><a href="/reviews">Reviews</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/faqs">FAQs</a></li>
+        <li><a href="/blog">Blog</a></li>
+        <li><a href="/contact">Contact</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Service Areas</h4>
+      <ul class="footer-links">
+        <li><a href="/car-detailing-in-burton-heights">Burton Heights</a></li>
+        <li><a href="/car-detailing-in-the-black-hills">Black Hills</a></li>
+        <li><a href="/car-detailing-in-godwin-heights">Godwin Heights</a></li>
+        <li><a href="/car-detailing-in-madison-area">South East End</a></li>
+      </ul>
+      <h4 class="footer-social-heading">Follow</h4>
+      <ul class="footer-social">
+        <li><a href="https://www.facebook.com/profile.php?id=100091518800003" target="_blank" rel="noopener" aria-label="Facebook">Facebook</a></li>
+        <li><a href="https://www.instagram.com/rivercityautodetail/" target="_blank" rel="noopener" aria-label="Instagram">Instagram</a></li>
+        <li><a href="https://x.com/RCdetail" target="_blank" rel="noopener" aria-label="X">X</a></li>
+        <li><a href="https://www.youtube.com/channel/UC3Kv1jJVNFE47ctMoz-K28Q" target="_blank" rel="noopener" aria-label="YouTube">YouTube</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="container footer-bottom">
+    <p>© <span id="year"></span> River City Auto Detail. All rights reserved.</p>
+  </div>
+</footer>
+
+<div class="mobile-bar">
+  <a href="tel:+16164854306" class="mobile-bar-btn mobile-call">Call</a>
+  <a href="/book-appointment" class="mobile-bar-btn mobile-book">Book</a>
+</div>
+
+<!-- ===== GALLERY + LIGHTBOX SCRIPT ===== -->
+<script>
+(function () {
+  // ============ CONFIG ============
+  const API_KEY   = 'AIzaSyARBQnwofgd9QakT4CSmoHuIUeRHNv0Jas';
+  const FOLDER_ID = '1serhybaNCg91OWNy_CrOxLmzKQFX2VtZ';
+  // ================================
+
+  const grid   = document.getElementById('gallery-grid');
+  const status = document.getElementById('gallery-status');
+
+  // Lightbox elements
+  const lightbox = document.getElementById('lightbox');
+  const lbImage  = document.getElementById('lb-image');
+  const lbPrev   = document.getElementById('lb-prev');
+  const lbNext   = document.getElementById('lb-next');
+  const lbClose  = document.getElementById('lb-close');
+  const lbCounter = document.getElementById('lb-counter');
+
+  let photos = [];      // array of { id, name, thumbUrl, fullUrl }
+  let currentIndex = 0;
+
+  // ---- Fetch the folder listing ----
+  const q = `'${FOLDER_ID}' in parents and mimeType contains 'image/' and trashed = false`;
+  const url =
+    'https://www.googleapis.com/drive/v3/files' +
+    '?q=' + encodeURIComponent(q) +
+    '&fields=' + encodeURIComponent('files(id,name,mimeType)') +
+    '&orderBy=name' +
+    '&pageSize=1000' +
+    '&key=' + API_KEY;
+
+  fetch(url)
+    .then(function (res) {
+      if (!res.ok) {
+        return res.text().then(function (t) {
+          throw new Error('Drive API ' + res.status + ': ' + t);
+        });
+      }
+      return res.json();
+    })
+    .then(function (data) {
+      const files = (data.files || []).filter(function (f) {
+        return f.mimeType && f.mimeType.indexOf('image/') === 0;
+      });
+
+      if (files.length === 0) {
+        status.textContent = 'No images found in this folder.';
+        return;
+      }
+
+      status.style.display = 'none';
+
+      photos = files.map(function (file) {
+        return {
+          id: file.id,
+          name: file.name || 'Detailing photo',
+          thumbUrl: 'https://drive.google.com/thumbnail?id=' + file.id + '&sz=w800',
+          fullUrl:  'https://drive.google.com/thumbnail?id=' + file.id + '&sz=w2000'
+        };
+      });
+
+      photos.forEach(function (photo, index) {
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'service-card';
+        card.style.padding = '0';
+        card.style.border = '1px solid var(--line)';
+        card.style.background = 'var(--bg-2)';
+        card.style.cursor = 'zoom-in';
+        card.setAttribute('aria-label', 'View ' + photo.name);
+
+        const img = document.createElement('img');
+        img.src = photo.thumbUrl;
+        img.alt = photo.name;
+        img.loading = 'lazy';
+        img.style.width = '100%';
+        img.style.aspectRatio = '4 / 3';
+        img.style.objectFit = 'cover';
+        img.style.display = 'block';
+        img.style.filter = 'brightness(.92) contrast(1.05)';
+        img.style.transition = 'filter .25s, transform .4s';
+
+        card.addEventListener('mouseenter', function () {
+          img.style.filter = 'brightness(1) contrast(1.05)';
+          img.style.transform = 'scale(1.03)';
+        });
+        card.addEventListener('mouseleave', function () {
+          img.style.filter = 'brightness(.92) contrast(1.05)';
+          img.style.transform = 'scale(1)';
+        });
+
+        card.addEventListener('click', function () {
+          openLightbox(index);
+        });
+
+        card.appendChild(img);
+        grid.appendChild(card);
+      });
+    })
+    .catch(function (err) {
+      console.error(err);
+      status.innerHTML =
+        '<p style="color:#ff6b74; margin-bottom:.5rem;"><strong>Could not load gallery.</strong></p>' +
+        '<p style="font-size:.9rem;">Check the browser console for the exact error.</p>';
+    });
+
+  // ---- Lightbox logic ----
+  function openLightbox(index) {
+    currentIndex = index;
+    loadImage();
+    lightbox.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+  }
+
+  function closeLightbox() {
+    lightbox.classList.remove('open');
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
+    lbImage.classList.remove('loaded');
+    lbImage.removeAttribute('src');
+  }
+
+  function showImage(direction) {
+    if (!photos.length) return;
+    currentIndex = (currentIndex + direction + photos.length) % photos.length;
+    loadImage();
+  }
+
+  function loadImage() {
+    if (!photos.length) return;
+    const photo = photos[currentIndex];
+
+    // Preload full-res, fade in when ready
+    lbImage.classList.remove('loaded');
+    const preload = new Image();
+    preload.onload = function () {
+      lbImage.src = photo.fullUrl;
+      lbImage.alt = photo.name;
+      // Force reflow so transition retriggers on rapid arrow clicks
+      void lbImage.offsetWidth;
+      lbImage.classList.add('loaded');
+    };
+    preload.onerror = function () {
+      // Fallback to thumb if full-res fails
+      lbImage.src = photo.thumbUrl;
+      lbImage.classList.add('loaded');
+    };
+    preload.src = photo.fullUrl;
+
+    lbCounter.textContent = (currentIndex + 1) + ' / ' + photos.length;
+  }
+
+  // ---- Event listeners ----
+  lbPrev.addEventListener('click', function () { showImage(-1); });
+  lbNext.addEventListener('click', function () { showImage(1); });
+  lbClose.addEventListener('click', closeLightbox);
+
+  // Click backdrop to close (but not on the image or buttons)
+  lightbox.addEventListener('click', function (e) {
+    if (e.target === lightbox || e.target.classList.contains('lb-stage')) {
+      closeLightbox();
+    }
+  });
+
+  // Keyboard: arrows + Escape
+  document.addEventListener('keydown', function (e) {
+    if (!lightbox.classList.contains('open')) return;
+    if (e.key === 'Escape')      closeLightbox();
+    if (e.key === 'ArrowLeft')   showImage(-1);
+    if (e.key === 'ArrowRight')  showImage(1);
+  });
+
+  // Touch swipe support on mobile
+  let touchStartX = 0;
+  let touchStartY = 0;
+  lbImage.addEventListener('touchstart', function (e) {
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+  }, { passive: true });
+  lbImage.addEventListener('touchend', function (e) {
+    const dx = e.changedTouches[0].screenX - touchStartX;
+    const dy = e.changedTouches[0].screenY - touchStartY;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+      showImage(dx < 0 ? 1 : -1);
+    }
+  }, { passive: true });
+})();
+
+document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>
